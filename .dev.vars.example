@@ -1,0 +1,10 @@
+# Copy to .dev.vars for `npm run preview` (Cloudflare). Never commit real values.
+
+# Supabase project (Project Settings > API keys)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
+# Server only. Full database access: keep it secret.
+SUPABASE_SECRET_KEY=sb_secret_xxx
+
+# Public address of the site (used in email links)
+NEXT_PUBLIC_SITE_URL=http://localhost:3000

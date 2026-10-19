@@ -1,0 +1,25 @@
+# dependencies
+/node_modules
+
+# builds
+/.next/
+/.open-next/
+/.wrangler/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+
+# env files (keep the example only)
+.env*
+!.env.example
+.dev.vars*
+!.dev.vars.example
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+/coverage
+/supabase/.temp
+/supabase/.branches
