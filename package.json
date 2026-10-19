@@ -1,0 +1,60 @@
+{
+  "name": "rabt",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:db": "bash scripts/test-db.sh",
+    "check": "npm run lint && npm run typecheck && npm run format:check && npm run test",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
+    "next": "16.4.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "^0.0.1",
+    "zod": "4.3.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@opennextjs/cloudflare": "1.20.12",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "prettier": "3.9.10",
+    "tailwindcss": "^4",
+    "typescript": "~5.9.0",
+    "vitest": "5.0.5",
+    "wrangler": "4.151.2"
+  },
+  "overrides": {
+    "typescript-eslint": "8.71.2",
+    "@typescript-eslint/eslint-plugin": "8.71.2",
+    "@typescript-eslint/parser": "8.71.2",
+    "@typescript-eslint/utils": "8.71.2",
+    "@typescript-eslint/type-utils": "8.71.2",
+    "@typescript-eslint/types": "8.71.2",
+    "@typescript-eslint/typescript-estree": "8.71.2",
+    "@typescript-eslint/scope-manager": "8.71.2",
+    "@typescript-eslint/visitor-keys": "8.71.2",
+    "@typescript-eslint/project-service": "8.71.2",
+    "@typescript-eslint/tsconfig-utils": "8.71.2"
+  }
+}

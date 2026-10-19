@@ -1,0 +1,35 @@
+# Supabase CLI settings for local development (npx supabase start).
+# Production settings are made in the Supabase dashboard; see docs/SETUP.md.
+
+project_id = "rabt"
+
+[api]
+schemas = ["public"]
+max_rows = 100
+
+[db]
+major_version = 17
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/confirm"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+minimum_password_length = 8
+password_requirements = "letters_digits"
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+secure_password_change = true
+
+[auth.email.template.confirmation]
+subject = "أكّد حسابك في ربط"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "تغيير كلمة المرور في ربط"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.sms]
+enable_signup = false
