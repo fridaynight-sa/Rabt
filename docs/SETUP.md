@@ -20,7 +20,8 @@
 3. أضف المتغيرات:
    - وقت البناء: `NEXT_PUBLIC_SUPABASE_URL` و`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` و`NEXT_PUBLIC_SITE_URL`
    - سر (Secret): `SUPABASE_SECRET_KEY`
-4. أمر البناء: `npx opennextjs-cloudflare build`، وأمر النشر: `npx opennextjs-cloudflare deploy`.
+4. من **R2** سوّ مخزن (bucket) اسمه `rabt-media`. هذا مكان صور الموردين والإعلانات، ويكون خاص (مو عام).
+5. أمر البناء: `npx opennextjs-cloudflare build`، وأمر النشر: `npx opennextjs-cloudflare deploy`.
 
 ## 3. حساب الأدمن
 

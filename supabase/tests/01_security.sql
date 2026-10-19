@@ -328,6 +328,6 @@ select tests.ok(
     where n.nspname = 'public'
       and (has_function_privilege('anon', p.oid, 'execute')
            or has_function_privilege('authenticated', p.oid, 'execute'))
-      and p.proname not in ('current_user_role', 'is_admin', 'is_account_active')
+      and p.proname not in ('current_user_role', 'is_admin', 'is_account_active', 'set_provider_tags')
   ),
   'visitors and users can run only the allowed functions');

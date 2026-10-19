@@ -28,6 +28,9 @@
 
 - Security headers on every response: HSTS, `X-Frame-Options: DENY`,
   `nosniff`, strict referrer policy, CSP `frame-ancestors 'none'`.
+- Uploads: max 3 MB, type read from the file's bytes (JPEG, PNG, WebP only; no SVG),
+  random file names, stored only in the owner's folder (enforced by the database).
+  Images are served with `Content-Security-Policy: default-src 'none'; sandbox`.
 - Redirects after login only go to paths on this site (`safeNextPath`).
 - Server actions are protected against cross-site posts by Next.js
   (Origin check).

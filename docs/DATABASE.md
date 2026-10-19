@@ -8,7 +8,7 @@ Postgres on Supabase. Schema lives in `supabase/migrations/`.
 | profiles                              | One row per account: role, name, phone, status                                    | Owner, admin                       | Owner (name, phone only)                 |
 | providers                             | Provider page: business name, slug, city, WhatsApp, services, description, rating | Everyone (active accounts)         | Owner (not slug, verification or rating) |
 | provider_sectors, provider_categories | What a provider serves and offers                                                 | Everyone                           | Owner                                    |
-| portfolio_images                      | Work photos (R2 keys), max 30                                                     | Everyone (active accounts)         | Owner                                    |
+| portfolio_images                      | Work photos (R2 keys under `portfolio/<provider id>/`), max 30                    | Everyone (active accounts)         | Owner                                    |
 | listings                              | Ads: title, description, optional price, city, category, contact method           | Everyone when published and active | Owner (not status)                       |
 | listing_images                        | Ad photos (R2 keys), max 5                                                        | Same as the listing                | Owner                                    |
 | reviews                               | 1-5 stars + comment, one per merchant per provider                                | Everyone                           | Merchant (own)                           |
@@ -20,6 +20,8 @@ Postgres on Supabase. Schema lives in `supabase/migrations/`.
 
 - Ratings: a trigger keeps `providers.rating_avg` and `rating_count` current.
 - Image limits: triggers cap listing images at 5 and portfolio images at 30.
+- Image keys: a portfolio image key must sit in its owner's folder (`portfolio/<provider id>/...`).
+- `set_provider_tags(sector_ids, category_ids)` replaces a provider's sectors and categories in one step, as the caller (RLS applies).
 - Phone and WhatsApp numbers must be E.164.
 - Suspended accounts disappear from public pages and cannot write.
 - Admin changes (suspend, hide, verify) will go through audited functions (phase 5).
