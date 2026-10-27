@@ -2,10 +2,18 @@ import { whatsappLink } from "@/lib/phone";
 
 const GREETING = "السلام عليكم، شفت صفحتكم في منصة ربط وأبي أستفسر.";
 
-export function WhatsAppButton({ number, className = "" }: { number: string; className?: string }) {
+export function WhatsAppButton({
+  number,
+  message = GREETING,
+  className = "",
+}: {
+  number: string;
+  message?: string;
+  className?: string;
+}) {
   return (
     <a
-      href={whatsappLink(number, GREETING)}
+      href={whatsappLink(number, message)}
       target="_blank"
       rel="noopener noreferrer"
       className={`inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f9d55] px-5 py-3 text-base font-semibold text-white hover:bg-[#178246] ${className}`}

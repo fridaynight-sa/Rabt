@@ -30,3 +30,6 @@ export function firstFieldErrors(error: z.ZodError): Record<string, string> {
   }
   return errors;
 }
+
+/** Result of a small action called directly from a client component. */
+export type ActionResult = { ok: true } | { ok: false; message: string };

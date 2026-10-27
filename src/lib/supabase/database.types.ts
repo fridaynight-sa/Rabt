@@ -57,6 +57,7 @@ export type Database = {
           is_verified: boolean;
           rating_avg: number;
           rating_count: number;
+          search_text: string;
           created_at: string;
           updated_at: string;
         },
@@ -99,6 +100,7 @@ export type Database = {
           category_id: number;
           contact_method: ContactMethod;
           status: ListingStatus;
+          search_text: string;
           created_at: string;
           updated_at: string;
         },
@@ -178,6 +180,58 @@ export type Database = {
       is_account_active: { Args: { account_id: string }; Returns: boolean };
       get_login_email_for_phone: { Args: { p_phone: string }; Returns: string | null };
       record_page_view: { Args: { p_path: string }; Returns: undefined };
+      normalize_search_text: { Args: { t: string }; Returns: string };
+      search_pattern: { Args: { p_query: string }; Returns: string | null };
+      search_listings: {
+        Args: {
+          p_query?: string | null;
+          p_city_id?: number | null;
+          p_category_id?: number | null;
+          p_sector_id?: number | null;
+          p_provider_id?: string | null;
+          p_sort?: string;
+          p_limit?: number;
+          p_offset?: number;
+        };
+        Returns: {
+          id: string;
+          title: string;
+          price: number | null;
+          city_id: number;
+          category_id: number;
+          contact_method: ContactMethod;
+          created_at: string;
+          provider_id: string;
+          provider_name: string;
+          provider_slug: string;
+          provider_verified: boolean;
+          cover_key: string | null;
+          total_count: number;
+        }[];
+      };
+      search_providers: {
+        Args: {
+          p_query?: string | null;
+          p_city_id?: number | null;
+          p_category_id?: number | null;
+          p_sector_id?: number | null;
+          p_sort?: string;
+          p_limit?: number;
+          p_offset?: number;
+        };
+        Returns: {
+          id: string;
+          slug: string;
+          business_name: string;
+          city_id: number;
+          services: string;
+          is_verified: boolean;
+          rating_avg: number;
+          rating_count: number;
+          cover_key: string | null;
+          total_count: number;
+        }[];
+      };
       set_provider_tags: {
         Args: { p_sector_ids: number[]; p_category_ids: number[] };
         Returns: undefined;
