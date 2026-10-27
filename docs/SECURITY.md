@@ -23,6 +23,8 @@
 - Suspended users are signed out at login and blocked by RLS.
 - Passwords: at least 8 characters with a letter and a digit (app and Supabase).
 - Email must be confirmed before login.
+- Reviews show only the reviewer's display name; their phone, email and account stay private.
+  Only active merchants review, once per provider; they can edit or delete their own review.
 - Changing the email or password needs the current password. A new email only takes
   effect after the link sent to it is opened (Supabase secure email change also asks
   the old address).

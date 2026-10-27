@@ -6,6 +6,7 @@ import { ListingContact } from "@/features/listings/components/contact-buttons";
 import { getListing } from "@/features/listings/queries";
 import { Rating } from "@/features/providers/components/rating";
 import { getProviderById, getReferenceData } from "@/features/providers/queries";
+import { ReportButton } from "@/features/reports/components/report-button";
 import { searchHref } from "@/features/search/params";
 import { formatPrice, timeAgo } from "@/lib/format";
 import { mediaUrl } from "@/lib/images";
@@ -161,6 +162,12 @@ export default async function ListingPage({ params }: Props) {
               صفحة المورد وكل إعلاناته
             </Link>
           </div>
+
+          {!isOwner && (
+            <div className="text-center">
+              <ReportButton targetType="listing" targetId={listing.id} signedIn={Boolean(viewer)} />
+            </div>
+          )}
         </aside>
         <div className="rounded-2xl border border-slate-200 bg-white p-6 lg:col-start-1 lg:row-start-2 lg:self-start">
           <h2 className="text-lg font-semibold text-slate-900">الوصف</h2>
