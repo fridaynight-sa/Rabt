@@ -53,13 +53,21 @@ row), validating it again. The trigger never creates an admin.
 - `src/lib/` holds code shared by several features.
 - Database: one migration per change, in `supabase/migrations/`, plus tests.
 
+## Search
+
+`/search` reads its filters from the address (`?q=&type=&city=&category=&sector=&sort=&page=`,
+parsed by `src/features/search/params.ts`), so any search can be shared as a link. The filter
+form is a plain GET form and works without JavaScript. Results come from the
+`search_listings` and `search_providers` database functions.
+
 ## Images
 
 1. The browser shrinks each photo (longest side 1600px, WebP or JPEG) before upload
    (`src/lib/client/compress-image.ts`).
 2. A server action checks the size (max 3 MB) and the real file type from its first
    bytes (JPEG, PNG or WebP only), then stores it in R2 under
-   `portfolio/<provider id>/<random id>.<ext>` and saves the key in the database.
+   `portfolio/<provider id>/...` or `listings/<listing id>/...` and saves the key in the database
+   (`src/lib/storage/upload.ts`).
 3. `/media/<key>` serves images from R2 with a one-year cache. Only keys in the
    site's own format are served, with `Content-Security-Policy: sandbox`.
 

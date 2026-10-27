@@ -21,6 +21,13 @@ Postgres on Supabase. Schema lives in `supabase/migrations/`.
 - Ratings: a trigger keeps `providers.rating_avg` and `rating_count` current.
 - Image limits: triggers cap listing images at 5 and portfolio images at 30.
 - Image keys: a portfolio image key must sit in its owner's folder (`portfolio/<provider id>/...`).
+- Image keys: a listing image key must sit in its listing's folder (`listings/<listing id>/...`).
+- Search: `listings.search_text` and `providers.search_text` are generated columns holding
+  normalized Arabic text (`normalize_search_text`: no diacritics, أ/إ/آ → ا, ة → ه, ى → ي),
+  indexed with trigrams (`pg_trgm`).
+- `search_listings(...)` and `search_providers(...)` return one page of results plus the total.
+  They run as the caller, so RLS hides hidden listings and suspended providers. Listings match
+  on their title and description or the provider's name; `%` and `_` in the search are plain text.
 - `set_provider_tags(sector_ids, category_ids)` replaces a provider's sectors and categories in one step, as the caller (RLS applies).
 - Phone and WhatsApp numbers must be E.164.
 - Suspended accounts disappear from public pages and cannot write.

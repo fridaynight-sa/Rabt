@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const tabs = [
   { href: "/dashboard/provider", label: "نظرة عامة" },
+  { href: "/dashboard/provider/listings", label: "إعلاناتي" },
   { href: "/dashboard/provider/profile", label: "بيانات الصفحة" },
   { href: "/dashboard/provider/portfolio", label: "صور الأعمال" },
   { href: "/dashboard/provider/account", label: "إعدادات الحساب" },
@@ -16,7 +17,8 @@ export function ProviderNav() {
     <nav aria-label="لوحة المورد" className="-mx-4 overflow-x-auto px-4">
       <ul className="flex gap-1 border-b border-slate-200">
         {tabs.map((t) => {
-          const active = pathname === t.href;
+          const active =
+            t.href === "/dashboard/provider" ? pathname === t.href : pathname.startsWith(t.href);
           return (
             <li key={t.href}>
               <Link

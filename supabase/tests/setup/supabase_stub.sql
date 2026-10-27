@@ -14,6 +14,10 @@ alter default privileges in schema public grant all on functions to anon, authen
 
 create extension if not exists pgcrypto;
 
+-- Supabase installs extensions in their own schema.
+create schema extensions;
+grant usage on schema extensions to anon, authenticated, service_role;
+
 create schema auth;
 grant usage on schema auth to anon, authenticated, service_role;
 
