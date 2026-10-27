@@ -244,6 +244,75 @@ export type Database = {
           is_mine: boolean;
         }[];
       };
+      admin_list_accounts: {
+        Args: {
+          p_role?: UserRole | null;
+          p_status?: AccountStatus | null;
+          p_query?: string | null;
+          p_limit?: number;
+          p_offset?: number;
+        };
+        Returns: {
+          id: string;
+          role: UserRole;
+          full_name: string;
+          email: string;
+          phone: string | null;
+          status: AccountStatus;
+          created_at: string;
+          provider_slug: string | null;
+          provider_verified: boolean | null;
+          total_count: number;
+        }[];
+      };
+      admin_set_account_status: {
+        Args: { p_user_id: string; p_status: AccountStatus };
+        Returns: undefined;
+      };
+      admin_set_provider_verified: {
+        Args: { p_provider_id: string; p_verified: boolean };
+        Returns: undefined;
+      };
+      admin_log: {
+        Args: { p_action: string; p_target_type: string; p_target_id: string; p_details?: Json };
+        Returns: undefined;
+      };
+      admin_set_listing_status: {
+        Args: { p_listing_id: string; p_status: ListingStatus };
+        Returns: undefined;
+      };
+      admin_delete_review: { Args: { p_review_id: string }; Returns: undefined };
+      admin_resolve_report: {
+        Args: { p_report_id: string; p_status: ReportStatus };
+        Returns: undefined;
+      };
+      admin_list_reports: {
+        Args: { p_status?: ReportStatus | null; p_limit?: number; p_offset?: number };
+        Returns: {
+          id: string;
+          target_type: ReportTarget;
+          target_id: string;
+          target_label: string | null;
+          target_path: string | null;
+          target_owner_id: string | null;
+          reason: string;
+          status: ReportStatus;
+          created_at: string;
+          reporter_name: string;
+          total_count: number;
+        }[];
+      };
+      admin_save_reference: {
+        Args: {
+          p_kind: "cities" | "sectors" | "categories";
+          p_id: number | null;
+          p_slug: string;
+          p_name_ar: string;
+          p_sort_order?: number;
+        };
+        Returns: number;
+      };
+      admin_stats: { Args: { p_days?: number }; Returns: Json };
       set_provider_tags: {
         Args: { p_sector_ids: number[]; p_category_ids: number[] };
         Returns: undefined;

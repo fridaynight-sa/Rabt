@@ -47,6 +47,27 @@
 - `.env*` and `.dev.vars` are git-ignored.
 - Owner keeps all passwords and keys in Bitwarden.
 
+## Admin
+
+- Admin powers need the second login step: a code from an authenticator app (Supabase MFA,
+  `aal2`). `is_admin()` checks it in the database, so an admin session without the code
+  has no admin rights anywhere, not only in the pages. The first visit to `/admin` sets
+  the app up.
+- Every admin change goes through an `admin_*` database function that checks admin rights
+  and writes `audit_log` in the same transaction. Creating and deleting logins (Supabase
+  admin API) is logged with `admin_log` before it runs. Nobody can edit or delete the log.
+- Admins cannot suspend or delete themselves or other admins from the dashboard.
+- Before the server uses the secret key for an admin, the database must confirm the
+  session is an admin (`is_admin()` over the user's own session).
+- Lost phone: in Supabase, open Authentication > Users, pick the admin, and remove the
+  authenticator factor. The next visit to `/admin` sets up a new one.
+
+## Visit counting
+
+Page views are counted in `src/proxy.ts` after the response is sent: public pages only,
+real page loads and in-app navigations, no bots, prefetches or dashboards
+(`src/lib/analytics.ts`). Only the path is stored, per day. No personal data.
+
 ## Making the first admin
 
 In the Supabase SQL editor, after signing up normally with your own email:
@@ -57,7 +78,7 @@ set role = 'admin'
 where id = (select id from auth.users where email = 'YOUR_EMAIL');
 ```
 
-Turn on two-factor login for that account in Supabase as soon as phase 5 adds it.
+Then open `/admin` and set up the authenticator app (required).
 
 ## Known gaps (planned)
 
@@ -65,7 +86,6 @@ Turn on two-factor login for that account in Supabase as soon as phase 5 adds it
 | ------------------------------------------------------------- | ------------------------------------ |
 | Bot protection on sign up and login                           | Cloudflare Turnstile, phase 6        |
 | Full Content Security Policy (scripts, styles)                | Phase 6, with nonces                 |
-| Admin two-factor login                                        | Phase 5                              |
 | Supabase rate limits count per IP; our server makes the calls | Review limits before launch, phase 6 |
 
 ## Checks

@@ -269,8 +269,15 @@ update public.profiles set status = 'active' where id = :p1;
 
 insert into public.audit_log (actor_id, action) values (:a1, 'test');
 
+-- Without the second login step (aal1) an admin has no admin powers.
 set role authenticated;
-select set_config('request.jwt.claims', format('{"sub":%s}', to_json(:a1::text)), false);
+select set_config('request.jwt.claims', format('{"sub":%s,"aal":"aal1"}', to_json(:a1::text)), false);
+select tests.ok(not public.is_admin(), 'an admin without the second login step is not treated as admin');
+select tests.ok(tests.rows('select * from public.profiles') = 1, 'an admin without the second login step sees only their own profile');
+reset role;
+
+set role authenticated;
+select set_config('request.jwt.claims', format('{"sub":%s,"aal":"aal2"}', to_json(:a1::text)), false);
 select tests.ok(tests.rows('select * from public.profiles') = 5, 'admin sees all profiles');
 select tests.ok(tests.rows('select * from public.reports') = 1, 'admin sees all reports');
 select tests.ok(tests.rows('select * from public.audit_log') = 1, 'admin reads the audit log');
@@ -330,6 +337,9 @@ select tests.ok(
            or has_function_privilege('authenticated', p.oid, 'execute'))
       and p.proname not in ('current_user_role', 'is_admin', 'is_account_active', 'set_provider_tags',
                              'normalize_search_text', 'search_pattern', 'search_listings', 'search_providers',
-                             'get_provider_reviews')
+                             'get_provider_reviews',
+                             'admin_list_accounts', 'admin_set_account_status', 'admin_set_provider_verified',
+                             'admin_log', 'admin_set_listing_status', 'admin_delete_review', 'admin_resolve_report',
+                             'admin_list_reports', 'admin_save_reference', 'admin_stats')
   ),
   'visitors and users can run only the allowed functions');
