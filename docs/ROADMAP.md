@@ -8,7 +8,7 @@ Each phase ends with a version the owner tries and approves before the next.
 | 2. Providers             | Provider dashboard: edit page, sectors and categories, portfolio images (R2), public provider page, WhatsApp button                                           | Done, waiting for approval |
 | 3. Listings and search   | Create listings with images, card grid, home page, search, filters by category, sector and city                                                               | Done, waiting for approval |
 | 4. Merchants and ratings | Reviews with comments, reports                                                                                                                                | Done, waiting for approval |
-| 5. Admin                 | Stats and visits, manage accounts and content, audit log, admin 2FA                                                                                           |                            |
+| 5. Admin                 | Stats and visits, manage accounts and content, audit log, admin 2FA                                                                                           | Done, waiting for approval |
 | 6. Launch                | Security review, performance, SEO and WhatsApp link previews, monitoring, backups, Turnstile, weekly checks                                                   |                            |
 
 Later, when needed: custom domain, verified badge, favourites, Supabase Pro.
