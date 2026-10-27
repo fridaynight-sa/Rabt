@@ -6,6 +6,8 @@ import { searchListings } from "@/features/listings/queries";
 import { Rating } from "@/features/providers/components/rating";
 import { WhatsAppButton } from "@/features/providers/components/whatsapp-button";
 import { getProviderBySlug } from "@/features/providers/queries";
+import { ReportButton } from "@/features/reports/components/report-button";
+import { ReviewsSection } from "@/features/reviews/components/reviews-section";
 import { mediaUrl } from "@/lib/images";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -59,7 +61,9 @@ export default async function ProviderPage({ params }: Props) {
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-600">
           {provider.cityName && <span>{provider.cityName}</span>}
-          <Rating average={provider.ratingAvg} count={provider.ratingCount} />
+          <a href="#reviews" className="hover:underline">
+            <Rating average={provider.ratingAvg} count={provider.ratingCount} />
+          </a>
         </div>
         {(provider.sectors.length > 0 || provider.categories.length > 0) && (
           <ul className="mt-4 flex flex-wrap gap-2" aria-label="الأقسام">
@@ -133,6 +137,14 @@ export default async function ProviderPage({ params }: Props) {
             </ListingGrid>
           </div>
         </section>
+      )}
+
+      <ReviewsSection provider={provider} viewer={viewer} />
+
+      {!isOwner && (
+        <div className="mt-8 text-center">
+          <ReportButton targetType="provider" targetId={provider.id} signedIn={Boolean(viewer)} />
+        </div>
       )}
     </div>
   );
