@@ -10,7 +10,7 @@
 4. من **Authentication > URL Configuration**:
    - Site URL: رابط الموقع (مثلاً `https://rabt.pages.dev`)
    - Redirect URLs: أضف `https://<رابط الموقع>/auth/confirm`
-5. من **Authentication > Email Templates**: انسخ محتوى `supabase/templates/confirmation.html` لقالب Confirm signup، و`recovery.html` لقالب Reset password.
+5. من **Authentication > Email Templates**: انسخ محتوى `supabase/templates/confirmation.html` لقالب Confirm signup، و`recovery.html` لقالب Reset password، و`email_change.html` لقالب Change email address. وتأكد إن خيار **Secure email change** مفعّل.
 6. من **Project Settings > API Keys**: انسخ الـ URL والـ Publishable key والـ Secret key وحطها في Bitwarden.
 
 ## 2. Cloudflare (الاستضافة)

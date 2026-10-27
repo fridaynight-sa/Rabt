@@ -7,6 +7,7 @@ const tabs = [
   { href: "/dashboard/provider", label: "نظرة عامة" },
   { href: "/dashboard/provider/profile", label: "بيانات الصفحة" },
   { href: "/dashboard/provider/portfolio", label: "صور الأعمال" },
+  { href: "/dashboard/provider/account", label: "إعدادات الحساب" },
 ];
 
 export function ProviderNav() {
