@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { requireUser } from "@/features/auth/session";
 
@@ -14,6 +15,9 @@ export default async function MerchantDashboardPage() {
         <p className="mt-2 text-sm text-slate-500">
           البحث عن الموردين يجي في المرحلة الثالثة، والتقييم في المرحلة الرابعة.
         </p>
+        <ButtonLink href="/dashboard/account" variant="secondary" className="mt-4">
+          إعدادات الحساب
+        </ButtonLink>
       </Card>
     </div>
   );

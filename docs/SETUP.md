@@ -10,7 +10,7 @@
 4. من **Authentication > URL Configuration**:
    - Site URL: رابط الموقع (مثلاً `https://rabt.pages.dev`)
    - Redirect URLs: أضف `https://<رابط الموقع>/auth/confirm`
-5. من **Authentication > Email Templates**: انسخ محتوى `supabase/templates/confirmation.html` لقالب Confirm signup، و`recovery.html` لقالب Reset password.
+5. من **Authentication > Email Templates**: انسخ محتوى `supabase/templates/confirmation.html` لقالب Confirm signup، و`recovery.html` لقالب Reset password، و`email_change.html` لقالب Change email address. وتأكد إن خيار **Secure email change** مفعّل.
 6. من **Project Settings > API Keys**: انسخ الـ URL والـ Publishable key والـ Secret key وحطها في Bitwarden.
 
 ## 2. Cloudflare (الاستضافة)
@@ -20,7 +20,8 @@
 3. أضف المتغيرات:
    - وقت البناء: `NEXT_PUBLIC_SUPABASE_URL` و`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` و`NEXT_PUBLIC_SITE_URL`
    - سر (Secret): `SUPABASE_SECRET_KEY`
-4. أمر البناء: `npx opennextjs-cloudflare build`، وأمر النشر: `npx opennextjs-cloudflare deploy`.
+4. من **R2** سوّ مخزن (bucket) اسمه `rabt-media`. هذا مكان صور الموردين والإعلانات، ويكون خاص (مو عام).
+5. أمر البناء: `npx opennextjs-cloudflare build`، وأمر النشر: `npx opennextjs-cloudflare deploy`.
 
 ## 3. حساب الأدمن
 
