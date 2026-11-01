@@ -32,6 +32,9 @@ Postgres on Supabase. Schema lives in `supabase/migrations/`.
   reviewer's display name only (profiles stay private), the viewer's own review first.
 - Reports must point at a provider, listing or review that exists (trigger), and a user can
   have only one open report per thing.
+- Admin: `is_admin()` needs the admin role, an active account and the second login step
+  (`aal2` in the JWT). `admin_*` functions (accounts, listings, reviews, reports, reference
+  lists, stats) check it and write `audit_log`. See `docs/SECURITY.md`.
 - `set_provider_tags(sector_ids, category_ids)` replaces a provider's sectors and categories in one step, as the caller (RLS applies).
 - Phone and WhatsApp numbers must be E.164.
 - Suspended accounts disappear from public pages and cannot write.

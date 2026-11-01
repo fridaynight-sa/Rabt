@@ -44,3 +44,14 @@ as $$
 $$;
 
 grant execute on function auth.uid() to anon, authenticated, service_role;
+
+-- Same contract as Supabase: all claims of the request's JWT (includes "aal").
+create function auth.jwt()
+returns jsonb
+language sql
+stable
+as $$
+  select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb;
+$$;
+
+grant execute on function auth.jwt() to anon, authenticated, service_role;
