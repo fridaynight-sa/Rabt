@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/features/auth/session";
+import { ListingCard, ListingGrid } from "@/features/listings/components/listing-card";
+import { searchListings } from "@/features/listings/queries";
 import { Rating } from "@/features/providers/components/rating";
 import { WhatsAppButton } from "@/features/providers/components/whatsapp-button";
 import { getProviderBySlug } from "@/features/providers/queries";
@@ -32,7 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProviderPage({ params }: Props) {
   const provider = await load((await params).slug);
   if (!provider) notFound();
-  const viewer = await getSessionUser();
+  const [viewer, listings] = await Promise.all([
+    getSessionUser(),
+    searchListings({ providerId: provider.id, pageSize: 50 }),
+  ]);
   const isOwner = viewer?.id === provider.id;
 
   return (
@@ -107,6 +112,26 @@ export default async function ProviderPage({ params }: Props) {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+      {listings.items.length > 0 && (
+        <section aria-labelledby="listings" className="mt-8">
+          <h2 id="listings" className="text-lg font-semibold text-slate-900">
+            الإعلانات ({listings.total})
+          </h2>
+          <div className="mt-4">
+            <ListingGrid>
+              {listings.items.map((l) => (
+                <ListingCard
+                  key={l.id}
+                  listing={l}
+                  cityName={
+                    l.cityId === provider.cityId ? (provider.cityName ?? undefined) : undefined
+                  }
+                />
+              ))}
+            </ListingGrid>
+          </div>
         </section>
       )}
     </div>

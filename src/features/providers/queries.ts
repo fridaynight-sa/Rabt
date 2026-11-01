@@ -89,3 +89,45 @@ async function loadProvider(column: "slug" | "id", value: string): Promise<Provi
 
 export const getProviderBySlug = cache((slug: string) => loadProvider("slug", slug));
 export const getProviderById = cache((id: string) => loadProvider("id", id));
+
+export type ProviderSearch = {
+  query?: string | null;
+  cityId?: number | null;
+  categoryId?: number | null;
+  sectorId?: number | null;
+  sort?: "rating" | "new";
+  page?: number;
+  pageSize?: number;
+};
+
+/** Active providers matching the filters, one page at a time. */
+export async function searchProviders(params: ProviderSearch) {
+  const pageSize = params.pageSize ?? 24;
+  const page = Math.max(params.page ?? 1, 1);
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("search_providers", {
+    p_query: params.query ?? null,
+    p_city_id: params.cityId ?? null,
+    p_category_id: params.categoryId ?? null,
+    p_sector_id: params.sectorId ?? null,
+    p_sort: params.sort ?? "rating",
+    p_limit: pageSize,
+    p_offset: (page - 1) * pageSize,
+  });
+  if (error) throw error;
+  const rows = data ?? [];
+  return {
+    total: rows[0] ? Number(rows[0].total_count) : 0,
+    items: rows.map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      businessName: r.business_name,
+      cityId: r.city_id,
+      services: r.services,
+      isVerified: r.is_verified,
+      ratingAvg: Number(r.rating_avg),
+      ratingCount: r.rating_count,
+      coverKey: r.cover_key,
+    })),
+  };
+}

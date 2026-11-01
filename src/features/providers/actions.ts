@@ -2,13 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/features/auth/session";
-import { firstFieldErrors, type FormState } from "@/lib/form";
-import { MAX_UPLOAD_BYTES, PORTFOLIO_LIMIT, detectImageType, extensionFor } from "@/lib/images";
-import { getMediaBucket } from "@/lib/storage/r2";
+import { GENERIC_ERROR } from "@/features/auth/shared";
+import { firstFieldErrors, type ActionResult, type FormState } from "@/lib/form";
+import { PORTFOLIO_LIMIT } from "@/lib/images";
+import { removeImages, storeImage } from "@/lib/storage/upload";
 import { createClient } from "@/lib/supabase/server";
 import { providerProfileSchema, readProfileForm } from "./schemas";
-
-const GENERIC_ERROR = "صار خطأ غير متوقع. حاول مرة ثانية بعد شوي.";
 
 // ---------------------------------------------------------------------------
 // Profile
@@ -69,25 +68,10 @@ export async function updateProviderProfile(
 // Portfolio images
 // ---------------------------------------------------------------------------
 
-export type UploadResult = { ok: true } | { ok: false; message: string };
-
-export async function uploadPortfolioImage(formData: FormData): Promise<UploadResult> {
+export async function uploadPortfolioImage(formData: FormData): Promise<ActionResult> {
   const user = await requireUser(["provider"]);
-  const file = formData.get("image");
-  if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, message: "اختر صورة." };
-  }
-  if (file.size > MAX_UPLOAD_BYTES) {
-    return { ok: false, message: "الصورة كبيرة، الحد 3 ميجا." };
-  }
-
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const type = detectImageType(bytes);
-  if (!type) {
-    return { ok: false, message: "نوع الملف غير مدعوم. الصيغ المقبولة: JPG وPNG وWEBP." };
-  }
-
   const supabase = await createClient();
+
   const { count, error: countError } = await supabase
     .from("portfolio_images")
     .select("id", { count: "exact", head: true })
@@ -100,16 +84,15 @@ export async function uploadPortfolioImage(formData: FormData): Promise<UploadRe
     return { ok: false, message: `وصلت الحد الأعلى (${PORTFOLIO_LIMIT} صورة). احذف صورة أول.` };
   }
 
-  const key = `portfolio/${user.id}/${crypto.randomUUID()}.${extensionFor(type)}`;
-  const bucket = await getMediaBucket();
-  await bucket.put(key, bytes, { httpMetadata: { contentType: type } });
+  const stored = await storeImage(formData.get("image"), `portfolio/${user.id}`);
+  if (!stored.ok) return stored;
 
   const { error } = await supabase
     .from("portfolio_images")
-    .insert({ provider_id: user.id, storage_key: key });
+    .insert({ provider_id: user.id, storage_key: stored.key });
   if (error) {
     // Do not leave a file behind that no row points to.
-    await bucket.delete(key);
+    await removeImages([stored.key]);
     if (error.code === "23514") {
       return { ok: false, message: `وصلت الحد الأعلى (${PORTFOLIO_LIMIT} صورة).` };
     }
@@ -121,7 +104,7 @@ export async function uploadPortfolioImage(formData: FormData): Promise<UploadRe
   return { ok: true };
 }
 
-export async function deletePortfolioImage(imageId: string): Promise<UploadResult> {
+export async function deletePortfolioImage(imageId: string): Promise<ActionResult> {
   const user = await requireUser(["provider"]);
   if (!/^[0-9a-f-]{36}$/.test(imageId)) return { ok: false, message: GENERIC_ERROR };
 
@@ -140,7 +123,7 @@ export async function deletePortfolioImage(imageId: string): Promise<UploadResul
   }
   if (!data) return { ok: false, message: "الصورة غير موجودة." };
 
-  await (await getMediaBucket()).delete(data.storage_key);
+  await removeImages([data.storage_key]);
   revalidatePath("/dashboard/provider", "layout");
   return { ok: true };
 }

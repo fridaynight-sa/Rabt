@@ -207,20 +207,20 @@ select tests.throws(
   '42501', 'provider cannot move a listing to another provider');
 
 insert into public.listing_images (listing_id, storage_key)
-select 'aaaaaaaa-0000-0000-0000-000000000001', 'listings/a1/' || g || '.webp' from generate_series(1, 5) g;
+select 'aaaaaaaa-0000-0000-0000-000000000001', 'listings/aaaaaaaa-0000-0000-0000-000000000001/' || g || '.webp' from generate_series(1, 5) g;
 select tests.throws(
-  $$insert into public.listing_images (listing_id, storage_key) values ('aaaaaaaa-0000-0000-0000-000000000001', 'listings/a1/6.webp')$$,
+  $$insert into public.listing_images (listing_id, storage_key) values ('aaaaaaaa-0000-0000-0000-000000000001', 'listings/aaaaaaaa-0000-0000-0000-000000000001/6.webp')$$,
   '23514', 'a listing cannot have more than 5 images');
 
 reset role;
 
 -- Free one image slot so the next test checks ownership, not the image limit.
-delete from public.listing_images where storage_key = 'listings/a1/5.webp';
+delete from public.listing_images where storage_key = 'listings/aaaaaaaa-0000-0000-0000-000000000001/5.webp';
 
 set role authenticated;
 select set_config('request.jwt.claims', format('{"sub":%s}', to_json(:p2::text)), false);
 select tests.throws(
-  $$insert into public.listing_images (listing_id, storage_key) values ('aaaaaaaa-0000-0000-0000-000000000001', 'listings/evil.webp')$$,
+  $$insert into public.listing_images (listing_id, storage_key) values ('aaaaaaaa-0000-0000-0000-000000000001', 'listings/aaaaaaaa-0000-0000-0000-000000000001/evil.webp')$$,
   '42501', 'provider cannot add images to another provider''s listing');
 select tests.ok(tests.rows($$delete from public.listings where id = 'aaaaaaaa-0000-0000-0000-000000000001' returning 1$$) = 0, 'provider cannot delete another provider''s listing');
 reset role;
@@ -328,6 +328,7 @@ select tests.ok(
     where n.nspname = 'public'
       and (has_function_privilege('anon', p.oid, 'execute')
            or has_function_privilege('authenticated', p.oid, 'execute'))
-      and p.proname not in ('current_user_role', 'is_admin', 'is_account_active', 'set_provider_tags')
+      and p.proname not in ('current_user_role', 'is_admin', 'is_account_active', 'set_provider_tags',
+                             'normalize_search_text', 'search_pattern', 'search_listings', 'search_providers')
   ),
   'visitors and users can run only the allowed functions');
