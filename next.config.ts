@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+
+// Lets `next dev` use the Cloudflare bindings in wrangler.jsonc (such as the R2 image bucket).
+initOpenNextCloudflareForDev();
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -15,8 +19,23 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  experimental: {
+    // Photos are shrunk in the browser first; the server also rejects files over 3 MB.
+    serverActions: { bodySizeLimit: "4mb" },
+  },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      // Pages.
+      { source: "/((?!media/).*)", headers: securityHeaders },
+      // Stored images: never run anything, even if a file were not really an image.
+      {
+        source: "/media/:path*",
+        headers: [
+          ...securityHeaders.filter((h) => h.key !== "Content-Security-Policy"),
+          { key: "Content-Security-Policy", value: "default-src 'none'; sandbox" },
+        ],
+      },
+    ];
   },
 };
 

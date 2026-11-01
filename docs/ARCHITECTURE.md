@@ -53,8 +53,19 @@ row), validating it again. The trigger never creates an admin.
 - `src/lib/` holds code shared by several features.
 - Database: one migration per change, in `supabase/migrations/`, plus tests.
 
+## Images
+
+1. The browser shrinks each photo (longest side 1600px, WebP or JPEG) before upload
+   (`src/lib/client/compress-image.ts`).
+2. A server action checks the size (max 3 MB) and the real file type from its first
+   bytes (JPEG, PNG or WebP only), then stores it in R2 under
+   `portfolio/<provider id>/<random id>.<ext>` and saves the key in the database.
+3. `/media/<key>` serves images from R2 with a one-year cache. Only keys in the
+   site's own format are served, with `Content-Security-Policy: sandbox`.
+
 ## Hosting
 
 `npm run deploy` builds with OpenNext and deploys to Cloudflare Workers
 (`wrangler.jsonc`). `NEXT_PUBLIC_*` values are baked in at build time, so they
 must be set in the build environment; `SUPABASE_SECRET_KEY` is a Worker secret.
+The R2 bucket `rabt-media` is bound as `MEDIA`.

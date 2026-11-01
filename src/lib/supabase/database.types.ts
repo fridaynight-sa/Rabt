@@ -178,6 +178,10 @@ export type Database = {
       is_account_active: { Args: { account_id: string }; Returns: boolean };
       get_login_email_for_phone: { Args: { p_phone: string }; Returns: string | null };
       record_page_view: { Args: { p_path: string }; Returns: undefined };
+      set_provider_tags: {
+        Args: { p_sector_ids: number[]; p_category_ids: number[] };
+        Returns: undefined;
+      };
     };
     Enums: {
       user_role: UserRole;

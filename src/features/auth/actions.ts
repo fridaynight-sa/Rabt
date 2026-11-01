@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getPublicEnv } from "@/lib/env";
 import { firstFieldErrors, formValues, type FormState } from "@/lib/form";
 import { safeNextPath } from "@/lib/safe-redirect";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -14,27 +13,7 @@ import {
   resetPasswordSchema,
 } from "./schemas";
 import { homeForRole } from "./session";
-
-const GENERIC_ERROR = "صار خطأ غير متوقع. حاول مرة ثانية بعد شوي.";
-const BAD_LOGIN = "الإيميل أو رقم الجوال أو كلمة المرور غير صحيحة.";
-
-function authErrorMessage(code: string | undefined): string {
-  switch (code) {
-    case "email_not_confirmed":
-      return "أكّد إيميلك أول من الرابط اللي وصلك، وبعدها سجّل دخول.";
-    case "invalid_credentials":
-      return BAD_LOGIN;
-    case "weak_password":
-      return "كلمة المرور ضعيفة، اختر وحدة أقوى.";
-    case "over_request_rate_limit":
-    case "over_email_send_rate_limit":
-      return "محاولات كثيرة. انتظر دقائق وحاول مرة ثانية.";
-    case "email_address_invalid":
-      return "الإيميل غير مقبول، جرّب إيميل ثاني.";
-    default:
-      return GENERIC_ERROR;
-  }
-}
+import { BAD_LOGIN, GENERIC_ERROR, authErrorMessage, confirmUrl } from "./shared";
 
 async function phoneInUse(phone: string): Promise<boolean> {
   const { data, error } = await createAdminClient()
@@ -44,12 +23,6 @@ async function phoneInUse(phone: string): Promise<boolean> {
     .limit(1);
   if (error) throw error;
   return data.length > 0;
-}
-
-function confirmUrl(next: string): string {
-  const url = new URL("/auth/confirm", getPublicEnv().NEXT_PUBLIC_SITE_URL);
-  url.searchParams.set("next", next);
-  return url.toString();
 }
 
 // ---------------------------------------------------------------------------
@@ -232,10 +205,7 @@ export async function updatePassword(_prev: FormState, formData: FormData): Prom
   if (error) {
     return {
       status: "error",
-      message:
-        error.code === "same_password"
-          ? "اختر كلمة مرور مختلفة عن القديمة."
-          : authErrorMessage(error.code),
+      message: authErrorMessage(error.code),
     };
   }
 
