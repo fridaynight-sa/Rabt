@@ -10,10 +10,6 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
-  {
-    key: "Content-Security-Policy",
-    value: "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
-  },
 ];
 
 const nextConfig: NextConfig = {
@@ -25,13 +21,13 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-      // Pages.
+      // Pages. Their Content-Security-Policy is set per request in src/proxy.ts.
       { source: "/((?!media/).*)", headers: securityHeaders },
       // Stored images: never run anything, even if a file were not really an image.
       {
         source: "/media/:path*",
         headers: [
-          ...securityHeaders.filter((h) => h.key !== "Content-Security-Policy"),
+          ...securityHeaders,
           { key: "Content-Security-Policy", value: "default-src 'none'; sandbox" },
         ],
       },

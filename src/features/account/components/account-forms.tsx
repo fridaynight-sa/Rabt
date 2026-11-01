@@ -5,6 +5,7 @@ import { Alert } from "@/components/ui/alert";
 import { TextField } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { PASSWORD_HINT } from "@/features/auth/components/password-hint";
+import { Turnstile } from "@/components/turnstile";
 import { initialFormState, type FormState } from "@/lib/form";
 import { changeEmail, changePassword, updateMerchantDetails } from "../actions";
 
@@ -87,6 +88,7 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string | null 
         dir="ltr"
         error={e.currentPassword}
       />
+      <Turnstile resetKey={state} />
       <div className="sm:w-56">
         <SubmitButton pendingText="جاري الإرسال...">تغيير الإيميل</SubmitButton>
       </div>
@@ -117,6 +119,7 @@ export function ChangePasswordForm() {
         error={e.newPassword}
         hint={PASSWORD_HINT}
       />
+      <Turnstile resetKey={state} />
       <div className="sm:w-56">
         <SubmitButton pendingText="جاري الحفظ...">تغيير كلمة المرور</SubmitButton>
       </div>

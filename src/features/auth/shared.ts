@@ -21,11 +21,19 @@ export function authErrorMessage(code: string | undefined): string {
     case "over_request_rate_limit":
     case "over_email_send_rate_limit":
       return "محاولات كثيرة. انتظر دقائق وحاول مرة ثانية.";
+    case "captcha_failed":
+      return "ما قدرنا نتأكد إنك مو روبوت. حدّث الصفحة وحاول مرة ثانية.";
     case "email_address_invalid":
       return "الإيميل غير مقبول، جرّب إيميل ثاني.";
     default:
       return GENERIC_ERROR;
   }
+}
+
+/** The bot-check token from a form (empty when Turnstile is not set up). */
+export function captchaToken(formData: FormData): string | undefined {
+  const token = formData.get("captchaToken");
+  return typeof token === "string" && token.length > 0 && token.length < 4096 ? token : undefined;
 }
 
 /** Link in emails that lands on /auth/confirm and then goes to `next`. */

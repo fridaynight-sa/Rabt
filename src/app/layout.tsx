@@ -16,6 +16,14 @@ export const metadata: Metadata = {
   title: { default: "ربط | موردين ومزودي خدمات للمشاريع", template: "%s | ربط" },
   description:
     "ربط تجمع المطاعم والكوفيهات والمتاجر الإلكترونية مع الموردين ومزودي الخدمات في مكان واحد.",
+  // Link previews (WhatsApp, X, LinkedIn...). Pages override title, description and image.
+  openGraph: {
+    siteName: "ربط",
+    locale: "ar_SA",
+    type: "website",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "ربط" }],
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

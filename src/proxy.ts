@@ -1,5 +1,6 @@
 import type { NextFetchEvent, NextRequest } from "next/server";
 import { shouldCountView, viewPath } from "@/lib/analytics";
+import { buildCsp, createNonce } from "@/lib/csp";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateSession } from "@/lib/supabase/proxy";
 
@@ -25,7 +26,15 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
     // Counted after the response is sent, so it never slows the page down.
     event.waitUntil(recordView(viewPath(view.pathname)));
   }
-  return updateSession(request);
+
+  // A fresh nonce per request. Next.js reads it from this request header and puts it
+  // on its own scripts; the browser then runs only scripts that carry it.
+  const csp = buildCsp(createNonce(), { dev: process.env.NODE_ENV === "development" });
+  request.headers.set("content-security-policy", csp);
+
+  const response = await updateSession(request);
+  response.headers.set("Content-Security-Policy", csp);
+  return response;
 }
 
 export const config = {

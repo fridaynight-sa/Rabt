@@ -2,6 +2,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getPublicEnv } from "@/lib/env";
+import { SESSION_COOKIE_OPTIONS } from "./cookies";
 import type { Database } from "./database.types";
 
 /** Supabase client acting as the signed-in user. Row level security applies. */
@@ -14,6 +15,7 @@ export async function createClient() {
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     {
+      cookieOptions: SESSION_COOKIE_OPTIONS,
       cookies: {
         getAll() {
           return cookieStore.getAll();

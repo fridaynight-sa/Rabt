@@ -28,7 +28,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: provider.businessName,
       description,
-      images: provider.images[0] ? [mediaUrl(provider.images[0].storageKey)] : undefined,
+      type: "profile",
+      images: provider.images[0]
+        ? [{ url: mediaUrl(provider.images[0].storageKey), alt: provider.businessName }]
+        : undefined,
     },
   };
 }

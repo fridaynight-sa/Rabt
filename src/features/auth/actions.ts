@@ -13,7 +13,7 @@ import {
   resetPasswordSchema,
 } from "./schemas";
 import { homeForRole } from "./session";
-import { BAD_LOGIN, GENERIC_ERROR, authErrorMessage, confirmUrl } from "./shared";
+import { BAD_LOGIN, GENERIC_ERROR, authErrorMessage, captchaToken, confirmUrl } from "./shared";
 
 async function phoneInUse(phone: string): Promise<boolean> {
   const { data, error } = await createAdminClient()
@@ -47,6 +47,7 @@ export async function signUpMerchant(_prev: FormState, formData: FormData): Prom
     password: input.password,
     options: {
       emailRedirectTo: confirmUrl("/dashboard"),
+      captchaToken: captchaToken(formData),
       data: { account_type: "merchant", full_name: input.fullName, phone: input.phone },
     },
   });
@@ -81,6 +82,7 @@ export async function signUpProvider(_prev: FormState, formData: FormData): Prom
     password: input.password,
     options: {
       emailRedirectTo: confirmUrl("/dashboard"),
+      captchaToken: captchaToken(formData),
       data: {
         account_type: "provider",
         full_name: input.fullName,
@@ -125,7 +127,11 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+    options: { captchaToken: captchaToken(formData) },
+  });
   if (error) {
     return { status: "error", message: authErrorMessage(error.code), values };
   }
@@ -171,6 +177,7 @@ export async function requestPasswordReset(
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: confirmUrl("/reset-password"),
+    captchaToken: captchaToken(formData),
   });
   if (error && error.code?.startsWith("over_")) {
     return { status: "error", message: authErrorMessage(error.code), values };

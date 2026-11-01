@@ -16,15 +16,16 @@ type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const listing = await getListing((await params).id);
   if (!listing) return { title: "الإعلان غير موجود" };
-  const description = listing.description.slice(0, 160);
+  // Price first: it is what people look for in a shared link.
+  const description = `${formatPrice(listing.price)} · ${listing.description}`.slice(0, 160);
+  const image = listing.images[0]
+    ? [{ url: mediaUrl(listing.images[0].storageKey), alt: listing.title }]
+    : undefined;
   return {
     title: listing.title,
     description,
-    openGraph: {
-      title: listing.title,
-      description,
-      images: listing.images[0] ? [mediaUrl(listing.images[0].storageKey)] : undefined,
-    },
+    openGraph: { title: listing.title, description, type: "article", images: image },
+    twitter: { card: image ? "summary_large_image" : "summary", title: listing.title, description },
   };
 }
 
@@ -70,6 +71,7 @@ export default async function ListingPage({ params }: Props) {
                 {/* eslint-disable-next-line @next/next/no-img-element -- images are already resized on upload */}
                 <img
                   src={mediaUrl(cover.storageKey)}
+                  fetchPriority="high"
                   alt={listing.title}
                   className="size-full object-cover"
                 />
