@@ -28,6 +28,10 @@ Postgres on Supabase. Schema lives in `supabase/migrations/`.
 - `search_listings(...)` and `search_providers(...)` return one page of results plus the total.
   They run as the caller, so RLS hides hidden listings and suspended providers. Listings match
   on their title and description or the provider's name; `%` and `_` in the search are plain text.
+- `get_provider_reviews(provider_id, limit, offset)` returns a provider's reviews with the
+  reviewer's display name only (profiles stay private), the viewer's own review first.
+- Reports must point at a provider, listing or review that exists (trigger), and a user can
+  have only one open report per thing.
 - `set_provider_tags(sector_ids, category_ids)` replaces a provider's sectors and categories in one step, as the caller (RLS applies).
 - Phone and WhatsApp numbers must be E.164.
 - Suspended accounts disappear from public pages and cannot write.

@@ -232,6 +232,18 @@ export type Database = {
           total_count: number;
         }[];
       };
+      get_provider_reviews: {
+        Args: { p_provider_id: string; p_limit?: number; p_offset?: number };
+        Returns: {
+          id: string;
+          rating: number;
+          comment: string | null;
+          created_at: string;
+          updated_at: string;
+          reviewer_name: string;
+          is_mine: boolean;
+        }[];
+      };
       set_provider_tags: {
         Args: { p_sector_ids: number[]; p_category_ids: number[] };
         Returns: undefined;
