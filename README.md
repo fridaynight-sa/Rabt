@@ -11,7 +11,7 @@ A B2B directory connecting restaurants, cafes and online stores with suppliers a
 | Web app            | Next.js 16 (App Router, Server Actions), TypeScript, Tailwind CSS 4        |
 | Hosting            | Cloudflare Workers via OpenNext                                            |
 | Database and login | Supabase (Postgres with row level security, Supabase Auth)                 |
-| Images             | Cloudflare R2 (from phase 3)                                               |
+| Images             | Supabase Storage (switchable to Cloudflare R2, see docs/ARCHITECTURE.md)   |
 | Validation         | Zod, shared by forms and server                                            |
 | Tests              | Vitest (unit), plain SQL tests on a throwaway Postgres (database security) |
 

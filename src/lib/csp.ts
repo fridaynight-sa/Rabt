@@ -9,7 +9,14 @@ export function createNonce(): string {
   return btoa(String.fromCharCode(...bytes));
 }
 
-export function buildCsp(nonce: string, { dev = false }: { dev?: boolean } = {}): string {
+export function buildCsp(
+  nonce: string,
+  {
+    dev = false,
+    imageOrigin = "",
+    https = !dev,
+  }: { dev?: boolean; imageOrigin?: string; https?: boolean } = {},
+): string {
   const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
     // 'strict-dynamic': scripts loaded by our nonced scripts (like Turnstile) are allowed too.
@@ -21,7 +28,8 @@ export function buildCsp(nonce: string, { dev = false }: { dev?: boolean } = {})
       ...(dev ? ["'unsafe-eval'"] : []),
     ],
     "style-src": ["'self'", "'unsafe-inline'"],
-    "img-src": ["'self'", "data:", "blob:"],
+    // Stored images come from the image store (Supabase Storage) when it is another site.
+    "img-src": ["'self'", "data:", "blob:", ...(imageOrigin ? [imageOrigin] : [])],
     "font-src": ["'self'"],
     "connect-src": ["'self'", TURNSTILE, ...(dev ? ["ws:"] : [])],
     "frame-src": [TURNSTILE],
@@ -34,5 +42,6 @@ export function buildCsp(nonce: string, { dev = false }: { dev?: boolean } = {})
   const policy = Object.entries(directives)
     .map(([name, values]) => `${name} ${values.join(" ")}`)
     .join("; ");
-  return dev ? policy : `${policy}; upgrade-insecure-requests`;
+  // On an https site, also load any http address over https.
+  return https ? `${policy}; upgrade-insecure-requests` : policy;
 }

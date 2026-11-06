@@ -96,6 +96,16 @@ export async function deleteListing(listingId: string): Promise<ActionResult> {
   if (!UUID.test(listingId)) return { ok: false, message: GENERIC_ERROR };
   const supabase = await createClient();
 
+  // Only the owner's own listing.
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("id")
+    .eq("id", listingId)
+    .eq("provider_id", user.id)
+    .maybeSingle();
+  if (!listing) return { ok: false, message: "الإعلان غير موجود." };
+
+  // Files first: the image store lets the owner delete them only while the listing exists.
   const { data: images, error: imagesError } = await supabase
     .from("listing_images")
     .select("storage_key")
@@ -104,6 +114,10 @@ export async function deleteListing(listingId: string): Promise<ActionResult> {
     console.error("listing images read failed", imagesError.code);
     return { ok: false, message: GENERIC_ERROR };
   }
+  await removeImages(
+    (images ?? []).map((i) => i.storage_key),
+    supabase,
+  );
 
   const { data, error } = await supabase
     .from("listings")
@@ -117,8 +131,6 @@ export async function deleteListing(listingId: string): Promise<ActionResult> {
   }
   if (!data?.length) return { ok: false, message: "الإعلان غير موجود." };
 
-  // Images rows are removed with the listing; remove the files too.
-  await removeImages((images ?? []).map((i) => i.storage_key));
   revalidatePath("/", "layout");
   return { ok: true };
 }
@@ -152,14 +164,14 @@ export async function uploadListingImage(
     return { ok: false, message: `الحد ${LISTING_IMAGE_LIMIT} صور للإعلان.` };
   }
 
-  const stored = await storeImage(formData.get("image"), `listings/${listingId}`);
+  const stored = await storeImage(formData.get("image"), `listings/${listingId}`, supabase);
   if (!stored.ok) return stored;
 
   const { error } = await supabase
     .from("listing_images")
     .insert({ listing_id: listingId, storage_key: stored.key });
   if (error) {
-    await removeImages([stored.key]);
+    await removeImages([stored.key], supabase);
     if (error.code === "23514") {
       return { ok: false, message: `الحد ${LISTING_IMAGE_LIMIT} صور للإعلان.` };
     }
@@ -192,7 +204,7 @@ export async function deleteListingImage(
   }
   if (!data) return { ok: false, message: "الصورة غير موجودة." };
 
-  await removeImages([data.storage_key]);
+  await removeImages([data.storage_key], supabase);
   revalidatePath("/", "layout");
   return { ok: true };
 }

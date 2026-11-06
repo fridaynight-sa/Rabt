@@ -1,6 +1,7 @@
 import type { NextFetchEvent, NextRequest } from "next/server";
 import { shouldCountView, viewPath } from "@/lib/analytics";
 import { buildCsp, createNonce } from "@/lib/csp";
+import { mediaOrigin } from "@/lib/storage/config";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateSession } from "@/lib/supabase/proxy";
 
@@ -29,7 +30,11 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
 
   // A fresh nonce per request. Next.js reads it from this request header and puts it
   // on its own scripts; the browser then runs only scripts that carry it.
-  const csp = buildCsp(createNonce(), { dev: process.env.NODE_ENV === "development" });
+  const csp = buildCsp(createNonce(), {
+    dev: process.env.NODE_ENV === "development",
+    imageOrigin: mediaOrigin(),
+    https: request.nextUrl.protocol === "https:",
+  });
   request.headers.set("content-security-policy", csp);
 
   const response = await updateSession(request);
