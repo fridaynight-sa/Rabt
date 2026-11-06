@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { TextField } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { Turnstile } from "@/components/turnstile";
 import { initialFormState } from "@/lib/form";
 import { signUpMerchant } from "../actions";
 import { PASSWORD_HINT } from "./password-hint";
@@ -54,7 +55,19 @@ export function MerchantSignupForm() {
         error={e.password}
         hint={PASSWORD_HINT}
       />
+      <Turnstile resetKey={state} />
       <SubmitButton pendingText="جاري إنشاء الحساب...">إنشاء الحساب</SubmitButton>
+      <p className="text-center text-xs text-slate-500">
+        بالتسجيل توافق على{" "}
+        <a href="/terms" target="_blank" className="underline">
+          شروط الاستخدام
+        </a>{" "}
+        و
+        <a href="/privacy" target="_blank" className="underline">
+          سياسة الخصوصية
+        </a>
+        .
+      </p>
     </form>
   );
 }

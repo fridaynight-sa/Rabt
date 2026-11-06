@@ -1,0 +1,59 @@
+name: Weekly database backup
+
+# Every Friday 03:00 Riyadh time (00:00 UTC), and on demand from the Actions tab.
+on:
+  schedule:
+    - cron: "0 0 * * 5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      # Settings > Secrets and variables > Actions. See docs/SETUP.md.
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check the secrets are set
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::warning::Backup skipped: add SUPABASE_DB_URL and BACKUP_PASSPHRASE secrets."
+            echo "SKIP=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Install PostgreSQL 17 client
+        if: env.SKIP != '1'
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+
+      - name: Dump and encrypt
+        if: env.SKIP != '1'
+        run: |
+          set -euo pipefail
+          name="rabt-$(date -u +%Y-%m-%d).dump"
+          /usr/lib/postgresql/17/bin/pg_dump "$SUPABASE_DB_URL" \
+            --format=custom --no-owner --no-privileges \
+            --schema=public --schema=auth \
+            --file="$name"
+          # Encrypted, so the file is useless to anyone without the passphrase.
+          gpg --batch --yes --symmetric --cipher-algo AES256 \
+            --passphrase "$BACKUP_PASSPHRASE" --output "$name.gpg" "$name"
+          rm "$name"
+          echo "FILE=$name.gpg" >> "$GITHUB_ENV"
+
+      - name: Keep the backup for 90 days
+        if: env.SKIP != '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.FILE }}
+          path: ${{ env.FILE }}
+          retention-days: 90
+          if-no-files-found: error

@@ -12,14 +12,17 @@
    - Redirect URLs: أضف `https://<رابط الموقع>/auth/confirm`
 5. من **Authentication > Email Templates**: انسخ محتوى `supabase/templates/confirmation.html` لقالب Confirm signup، و`recovery.html` لقالب Reset password، و`email_change.html` لقالب Change email address. وتأكد إن خيار **Secure email change** مفعّل.
 6. من **Project Settings > API Keys**: انسخ الـ URL والـ Publishable key والـ Secret key وحطها في Bitwarden.
+7. من **Authentication > Attack Protection**: فعّل **Captcha** واختر Cloudflare Turnstile، وحط الـ Secret key اللي تاخذه من Cloudflare (الخطوة 2 تحت).
+8. من **Authentication > Rate Limits**: ارفع حد تسجيل الدخول والتسجيل (مثلاً 300 بالساعة)، لأن طلبات كل الزوار تمر من سيرفر الموقع.
 
 ## 2. Cloudflare (الاستضافة)
 
 1. سوّ حساب في cloudflare.com.
 2. من **Workers & Pages** اربط مستودع GitHub.
 3. أضف المتغيرات:
-   - وقت البناء: `NEXT_PUBLIC_SUPABASE_URL` و`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` و`NEXT_PUBLIC_SITE_URL`
+   - وقت البناء: `NEXT_PUBLIC_SUPABASE_URL` و`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` و`NEXT_PUBLIC_SITE_URL` و`NEXT_PUBLIC_TURNSTILE_SITE_KEY` و`NEXT_PUBLIC_CONTACT_EMAIL` (إيميل التواصل اللي يظهر في صفحتي الشروط والخصوصية)
    - سر (Secret): `SUPABASE_SECRET_KEY`
+   - **Turnstile:** من قائمة **Turnstile** سوّ موقع جديد بنفس رابط الموقع. يعطيك Site key (يروح في `NEXT_PUBLIC_TURNSTILE_SITE_KEY`) وSecret key (يروح في Supabase، الخطوة 7 فوق).
 4. من **R2** سوّ مخزن (bucket) اسمه `rabt-media`. هذا مكان صور الموردين والإعلانات، ويكون خاص (مو عام).
 5. أمر البناء: `npx opennextjs-cloudflare build`، وأمر النشر: `npx opennextjs-cloudflare deploy`.
 
@@ -32,4 +35,23 @@
 
 ## 4. المراقبة
 
-- UptimeRobot: أضف رابط الموقع، ويوصلك تنبيه لو طاح.
+- **UptimeRobot (مجاني):** أضف مراقبة نوعها HTTP(s) على `https://<رابط الموقع>/api/health` كل 5 دقائق. يوصلك إيميل لو الموقع أو قاعدة البيانات طاحت.
+- **الأخطاء:** تنحفظ في Cloudflare، من **Workers & Pages > rabt > Logs**.
+
+## 5. النسخ الاحتياطي الأسبوعي
+
+يشتغل تلقائياً كل جمعة الساعة 3 الفجر، وينحفظ مشفّر في GitHub لمدة 90 يوم.
+
+1. في GitHub افتح المستودع، ثم **Settings > Secrets and variables > Actions**، وأضف:
+   - `SUPABASE_DB_URL`: من Supabase، **Connect > Session pooler** (الرابط كامل مع كلمة مرور قاعدة البيانات).
+   - `BACKUP_PASSPHRASE`: كلمة سر طويلة تختارها، واحفظها في Bitwarden. بدونها ما تقدر تفتح النسخة.
+2. للتجربة: **Actions > Weekly database backup > Run workflow**.
+
+ملاحظة: الصور محفوظة في Cloudflare R2، وهو مخزن موثوق بنسخ داخلية، فما تحتاج نسخ احتياطي منفصل في البداية.
+
+## 6. قبل الإطلاق
+
+- [ ] كل الخطوات فوق
+- [ ] تجربة كاملة على الموقع الحقيقي: تسجيل تاجر ومورد، تأكيد الإيميل، إضافة صور وإعلان، تقييم، بلاغ، لوحة الإدارة
+- [ ] مراجعة صفحتي الشروط والخصوصية (يفضّل من محامي)
+- [ ] تفعيل UptimeRobot والنسخ الاحتياطي

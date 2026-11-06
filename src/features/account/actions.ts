@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/features/auth/session";
-import { GENERIC_ERROR, authErrorMessage, confirmUrl } from "@/features/auth/shared";
+import { GENERIC_ERROR, authErrorMessage, captchaToken, confirmUrl } from "@/features/auth/shared";
 import { firstFieldErrors, formValues, type FormState } from "@/lib/form";
 import { createClient } from "@/lib/supabase/server";
 import { changeEmailSchema, changePasswordSchema, merchantDetailsSchema } from "./schemas";
@@ -10,10 +10,18 @@ import { changeEmailSchema, changePasswordSchema, merchantDetailsSchema } from "
 const WRONG_PASSWORD = "كلمة المرور الحالية غير صحيحة.";
 
 /** Confirms the signed-in user typed their current password. */
-async function verifyCurrentPassword(email: string | null, password: string): Promise<boolean> {
+async function verifyCurrentPassword(
+  email: string | null,
+  password: string,
+  formData: FormData,
+): Promise<boolean> {
   if (!email) return false;
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+    options: { captchaToken: captchaToken(formData) },
+  });
   return !error;
 }
 
@@ -24,7 +32,7 @@ export async function changePassword(_prev: FormState, formData: FormData): Prom
     return { status: "error", fieldErrors: firstFieldErrors(parsed.error) };
   }
 
-  if (!(await verifyCurrentPassword(user.email, parsed.data.currentPassword))) {
+  if (!(await verifyCurrentPassword(user.email, parsed.data.currentPassword, formData))) {
     return { status: "error", fieldErrors: { currentPassword: WRONG_PASSWORD } };
   }
 
@@ -51,7 +59,7 @@ export async function changeEmail(_prev: FormState, formData: FormData): Promise
   if (newEmail === user.email) {
     return { status: "error", fieldErrors: { newEmail: "هذا هو إيميلك الحالي." }, values };
   }
-  if (!(await verifyCurrentPassword(user.email, currentPassword))) {
+  if (!(await verifyCurrentPassword(user.email, currentPassword, formData))) {
     return { status: "error", fieldErrors: { currentPassword: WRONG_PASSWORD }, values };
   }
 

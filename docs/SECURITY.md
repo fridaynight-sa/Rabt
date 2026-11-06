@@ -80,13 +80,37 @@ where id = (select id from auth.users where email = 'YOUR_EMAIL');
 
 Then open `/admin` and set up the authenticator app (required).
 
-## Known gaps (planned)
+## Bot protection
 
-| Gap                                                           | Plan                                 |
-| ------------------------------------------------------------- | ------------------------------------ |
-| Bot protection on sign up and login                           | Cloudflare Turnstile, phase 6        |
-| Full Content Security Policy (scripts, styles)                | Phase 6, with nonces                 |
-| Supabase rate limits count per IP; our server makes the calls | Review limits before launch, phase 6 |
+Sign up, login, password reset and the current-password check (account settings) carry a
+Cloudflare Turnstile token. Supabase checks it (Authentication > Attack Protection), so the
+check also covers anyone calling the Supabase auth API directly. Without
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY` (local development) no widget is shown.
+
+## Content Security Policy
+
+`src/proxy.ts` sets a fresh nonce per request (`src/lib/csp.ts`): only our own scripts
+(and Turnstile, loaded by them) run; no inline scripts, no `eval` in production; no framing;
+forms only post to this site. Stored images get `default-src 'none'; sandbox`.
+
+## Sessions
+
+Login cookies are `httpOnly`, `secure` and `SameSite=Lax` (`src/lib/supabase/cookies.ts`).
+The browser never needs them, so injected scripts cannot read them.
+
+## Backups and monitoring
+
+- Weekly encrypted database dump (`.github/workflows/backup.yml`), kept 90 days.
+- `/api/health` for the uptime monitor; it reveals nothing but up or down.
+- Dependabot opens weekly pull requests for outdated or vulnerable packages.
+
+## Known gaps
+
+| Gap                                                                    | Plan                                                                   |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Supabase auth rate limits count per IP, and our server makes the calls | Raise the limits in Supabase (docs/SETUP.md); Turnstile stops bots     |
+| A signed-up phone number can be detected on the sign-up form           | Accepted: needed to say the number is taken; Turnstile limits scraping |
+| Images in R2 are not in the weekly backup                              | Accepted at launch; R2 is replicated by Cloudflare                     |
 
 ## Checks
 

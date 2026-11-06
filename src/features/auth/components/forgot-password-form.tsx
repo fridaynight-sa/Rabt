@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { TextField } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { Turnstile } from "@/components/turnstile";
 import { initialFormState } from "@/lib/form";
 import { requestPasswordReset } from "../actions";
 
@@ -26,6 +27,7 @@ export function ForgotPasswordForm() {
         defaultValue={state.values?.email}
         error={state.fieldErrors?.email}
       />
+      <Turnstile resetKey={state} />
       <SubmitButton pendingText="جاري الإرسال...">أرسل رابط التغيير</SubmitButton>
     </form>
   );

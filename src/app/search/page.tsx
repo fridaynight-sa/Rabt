@@ -106,7 +106,10 @@ export default async function SearchPage({ searchParams }: Props) {
           </div>
         </aside>
 
-        <section aria-live="polite">
+        <section aria-live="polite" aria-labelledby="results-title">
+          <h2 id="results-title" className="sr-only">
+            النتائج
+          </h2>
           <p className="mb-4 text-sm text-slate-600">
             {results.total === 0 ? "ما لقينا نتائج" : `${results.total} نتيجة`}
           </p>

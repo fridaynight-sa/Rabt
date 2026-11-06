@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { TextField } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { Turnstile } from "@/components/turnstile";
 import { initialFormState } from "@/lib/form";
 import { signIn } from "../actions";
 
@@ -38,6 +39,7 @@ export function LoginForm({ next }: { next?: string }) {
           نسيت كلمة المرور؟
         </Link>
       </div>
+      <Turnstile resetKey={state} />
       <SubmitButton pendingText="جاري الدخول...">دخول</SubmitButton>
     </form>
   );
