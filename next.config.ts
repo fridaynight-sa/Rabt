@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
-// Lets `next dev` use the Cloudflare bindings in wrangler.jsonc (such as the R2 image bucket).
+// Lets `next dev` use the Cloudflare bindings in wrangler.jsonc (such as an R2 image bucket).
 initOpenNextCloudflareForDev();
 
 const securityHeaders = [
@@ -14,6 +14,16 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  images: {
+    // Stored images, if next/image is used for them later.
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/rabt-media/**",
+      },
+    ],
+  },
   reactStrictMode: true,
   experimental: {
     // Photos are shrunk in the browser first; the server also rejects files over 3 MB.

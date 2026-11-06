@@ -13,7 +13,7 @@ Visitor / Merchant / Provider / Admin
             │
    ┌────────┼──────────────┐
    ▼        ▼              ▼
-Supabase   Cloudflare R2   WhatsApp / phone call
+Supabase                   WhatsApp / phone call
 (Auth +    (images)        (direct links, no API)
 Postgres)
 ```
@@ -62,18 +62,34 @@ form is a plain GET form and works without JavaScript. Results come from the
 
 ## Images
 
-1. The browser shrinks each photo (longest side 1600px, WebP or JPEG) before upload
-   (`src/lib/client/compress-image.ts`).
-2. A server action checks the size (max 3 MB) and the real file type from its first
-   bytes (JPEG, PNG or WebP only), then stores it in R2 under
-   `portfolio/<provider id>/...` or `listings/<listing id>/...` and saves the key in the database
+1. The browser shrinks each photo (longest side 1280px, WebP at quality 0.8, or JPEG where
+   WebP is not supported) before upload (`src/lib/client/compress-image.ts`). A 4 MB phone
+   photo becomes about 100 to 250 KB.
+2. A server action checks the size (max 3 MB) and the real file type from its first bytes
+   (JPEG, PNG or WebP only), then stores it under `portfolio/<provider id>/<random id>.<ext>`
+   or `listings/<listing id>/<random id>.<ext>` and saves the key in the database
    (`src/lib/storage/upload.ts`).
-3. `/media/<key>` serves images from R2 with a one-year cache. Only keys in the
-   site's own format are served, with `Content-Security-Policy: sandbox`.
+3. Images live in the Supabase Storage bucket `rabt-media` (public read, created by
+   `supabase/migrations/20261106000001_storage.sql`). Uploads and deletes run as the
+   signed-in user, so the bucket's policies decide: a provider writes only to their own
+   folder or their own listings' folders. Pages load images straight from Supabase's CDN
+   (`mediaUrl` in `src/lib/storage/config.ts`).
+
+### Moving images to Cloudflare R2 later
+
+All storage code sits behind one switch (`src/lib/storage/`): `config.ts` (where images live
+and their address), `store.ts` (upload and delete for Supabase or R2), `r2.ts` (the R2
+binding) and the `/media` route (serves R2 images). Keys are the same in both. To switch:
+
+1. Create the R2 bucket `rabt-media` and uncomment the `r2_buckets` binding in `wrangler.jsonc`.
+2. Copy the files from Supabase Storage to R2 with the same keys.
+3. Set `NEXT_PUBLIC_IMAGE_STORAGE=r2` and deploy. Image addresses become `/media/<key>`.
+
+With R2 the server checks ownership before writing (the database rows and constraints),
+since the bucket has no per-user rules.
 
 ## Hosting
 
 `npm run deploy` builds with OpenNext and deploys to Cloudflare Workers
 (`wrangler.jsonc`). `NEXT_PUBLIC_*` values are baked in at build time, so they
 must be set in the build environment; `SUPABASE_SECRET_KEY` is a Worker secret.
-The R2 bucket `rabt-media` is bound as `MEDIA`.

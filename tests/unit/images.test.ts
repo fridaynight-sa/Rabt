@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detectImageType, isValidMediaKey, mediaUrl } from "@/lib/images";
+import { detectImageType, isValidMediaKey } from "@/lib/images";
 
 const bytes = (...values: number[]) => new Uint8Array(values);
 const ascii = (s: string) => Array.from(s, (c) => c.charCodeAt(0));
@@ -42,8 +42,4 @@ describe("isValidMediaKey", () => {
   ])("refuses %s", (key) => {
     expect(isValidMediaKey(key)).toBe(false);
   });
-});
-
-it("builds the public image address", () => {
-  expect(mediaUrl("portfolio/a/b.webp")).toBe("/media/portfolio/a/b.webp");
 });

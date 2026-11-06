@@ -84,7 +84,7 @@ export async function uploadPortfolioImage(formData: FormData): Promise<ActionRe
     return { ok: false, message: `وصلت الحد الأعلى (${PORTFOLIO_LIMIT} صورة). احذف صورة أول.` };
   }
 
-  const stored = await storeImage(formData.get("image"), `portfolio/${user.id}`);
+  const stored = await storeImage(formData.get("image"), `portfolio/${user.id}`, supabase);
   if (!stored.ok) return stored;
 
   const { error } = await supabase
@@ -92,7 +92,7 @@ export async function uploadPortfolioImage(formData: FormData): Promise<ActionRe
     .insert({ provider_id: user.id, storage_key: stored.key });
   if (error) {
     // Do not leave a file behind that no row points to.
-    await removeImages([stored.key]);
+    await removeImages([stored.key], supabase);
     if (error.code === "23514") {
       return { ok: false, message: `وصلت الحد الأعلى (${PORTFOLIO_LIMIT} صورة).` };
     }
@@ -123,7 +123,7 @@ export async function deletePortfolioImage(imageId: string): Promise<ActionResul
   }
   if (!data) return { ok: false, message: "الصورة غير موجودة." };
 
-  await removeImages([data.storage_key]);
+  await removeImages([data.storage_key], supabase);
   revalidatePath("/dashboard/provider", "layout");
   return { ok: true };
 }

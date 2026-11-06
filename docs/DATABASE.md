@@ -8,9 +8,9 @@ Postgres on Supabase. Schema lives in `supabase/migrations/`.
 | profiles                              | One row per account: role, name, phone, status                                    | Owner, admin                       | Owner (name, phone only)                 |
 | providers                             | Provider page: business name, slug, city, WhatsApp, services, description, rating | Everyone (active accounts)         | Owner (not slug, verification or rating) |
 | provider_sectors, provider_categories | What a provider serves and offers                                                 | Everyone                           | Owner                                    |
-| portfolio_images                      | Work photos (R2 keys under `portfolio/<provider id>/`), max 30                    | Everyone (active accounts)         | Owner                                    |
+| portfolio_images                      | Work photos (storage keys under `portfolio/<provider id>/`), max 30               | Everyone (active accounts)         | Owner                                    |
 | listings                              | Ads: title, description, optional price, city, category, contact method           | Everyone when published and active | Owner (not status)                       |
-| listing_images                        | Ad photos (R2 keys), max 5                                                        | Same as the listing                | Owner                                    |
+| listing_images                        | Ad photos (storage keys under `listings/<listing id>/`), max 5                    | Same as the listing                | Owner                                    |
 | reviews                               | 1-5 stars + comment, one per merchant per provider                                | Everyone                           | Merchant (own)                           |
 | reports                               | Reports on a provider, listing or review                                          | Reporter, admin                    | Any active user                          |
 | page_views_daily                      | Visits per day and path                                                           | Admin                              | Server only                              |
@@ -35,6 +35,9 @@ Postgres on Supabase. Schema lives in `supabase/migrations/`.
 - Admin: `is_admin()` needs the admin role, an active account and the second login step
   (`aal2` in the JWT). `admin_*` functions (accounts, listings, reviews, reports, reference
   lists, stats) check it and write `audit_log`. See `docs/SECURITY.md`.
+- Image files: Supabase Storage bucket `rabt-media`. Policies on `storage.objects` use
+  `can_write_media(name)`: only a provider, only in their own portfolio folder or their own
+  listings' folders, only site-made file names. No one can overwrite a file.
 - `set_provider_tags(sector_ids, category_ids)` replaces a provider's sectors and categories in one step, as the caller (RLS applies).
 - Phone and WhatsApp numbers must be E.164.
 - Suspended accounts disappear from public pages and cannot write.

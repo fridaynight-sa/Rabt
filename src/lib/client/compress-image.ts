@@ -1,7 +1,7 @@
-import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_SIDE } from "@/lib/images";
+import { ACCEPTED_IMAGE_TYPES, IMAGE_QUALITY, MAX_IMAGE_SIDE } from "@/lib/images";
 
 /**
- * Shrinks a photo in the browser before upload: longest side 1600px, saved as
+ * Shrinks a photo in the browser before upload: longest side 1280px, saved as
  * WebP (or JPEG where WebP is not supported). Saves upload time and storage.
  */
 export async function compressImage(file: File): Promise<Blob> {
@@ -25,7 +25,7 @@ export async function compressImage(file: File): Promise<Blob> {
   bitmap.close();
 
   const toBlob = (type: string) =>
-    new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, 0.82));
+    new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, IMAGE_QUALITY));
 
   const webp = await toBlob("image/webp");
   if (webp && webp.type === "image/webp") return webp;

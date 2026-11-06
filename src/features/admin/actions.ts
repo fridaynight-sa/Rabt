@@ -112,7 +112,8 @@ export async function deleteAccount(userId: string): Promise<ActionResult> {
     console.error("admin delete user failed", error.code, error.message);
     return { ok: false, message: GENERIC_ERROR };
   }
-  await removeImages(keys);
+  // The account is gone, so its files are removed with full access.
+  await removeImages(keys, service);
   revalidatePath("/", "layout");
   return { ok: true };
 }

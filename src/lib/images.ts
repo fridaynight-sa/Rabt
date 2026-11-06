@@ -6,8 +6,14 @@ export type ImageType = (typeof ACCEPTED_IMAGE_TYPES)[number];
 /** Largest file the server accepts, after the browser has shrunk it. */
 export const MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
 
-/** Longest side, in pixels, the browser shrinks photos to before upload. */
-export const MAX_IMAGE_SIDE = 1600;
+/**
+ * Longest side, in pixels, the browser shrinks photos to before upload. 1280 keeps
+ * photos sharp on phones and laptops at about 100 to 250 KB each as WebP.
+ */
+export const MAX_IMAGE_SIDE = 1280;
+
+/** WebP/JPEG quality used when shrinking (0 to 1). */
+export const IMAGE_QUALITY = 0.8;
 
 export const PORTFOLIO_LIMIT = 30;
 
@@ -48,12 +54,9 @@ export function detectImageType(bytes: Uint8Array): ImageType | null {
 const KEY_PATTERN =
   /^(portfolio|listings)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/;
 
-/** True for keys this site creates; anything else is refused by the media route. */
+/** True for keys this site creates. The R2 media route refuses anything else. */
 export function isValidMediaKey(key: string): boolean {
   return KEY_PATTERN.test(key);
 }
 
-/** Public address of a stored image. */
-export function mediaUrl(key: string): string {
-  return `/media/${key}`;
-}
+export { mediaUrl } from "@/lib/storage/config";

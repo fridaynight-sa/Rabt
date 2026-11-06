@@ -337,7 +337,7 @@ select tests.ok(
            or has_function_privilege('authenticated', p.oid, 'execute'))
       and p.proname not in ('current_user_role', 'is_admin', 'is_account_active', 'set_provider_tags',
                              'normalize_search_text', 'search_pattern', 'search_listings', 'search_providers',
-                             'get_provider_reviews',
+                             'get_provider_reviews', 'can_write_media',
                              'admin_list_accounts', 'admin_set_account_status', 'admin_set_provider_verified',
                              'admin_log', 'admin_set_listing_status', 'admin_delete_review', 'admin_resolve_report',
                              'admin_list_reports', 'admin_save_reference', 'admin_stats')

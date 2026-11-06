@@ -34,8 +34,10 @@
 - Security headers on every response: HSTS, `X-Frame-Options: DENY`,
   `nosniff`, strict referrer policy, CSP `frame-ancestors 'none'`.
 - Uploads: max 3 MB, type read from the file's bytes (JPEG, PNG, WebP only; no SVG),
-  random file names, stored only in the owner's folder (enforced by the database).
-  Images are served with `Content-Security-Policy: default-src 'none'; sandbox`.
+  random file names, stored only in the owner's folder. Supabase Storage enforces this
+  too: bucket limits (3 MB, image types) and per-user policies tested in
+  `supabase/tests/06_storage.sql`. Pages may load images only from the site and the
+  Supabase project (CSP `img-src`).
 - Redirects after login only go to paths on this site (`safeNextPath`).
 - Server actions are protected against cross-site posts by Next.js
   (Origin check).
@@ -106,11 +108,12 @@ The browser never needs them, so injected scripts cannot read them.
 
 ## Known gaps
 
-| Gap                                                                    | Plan                                                                   |
-| ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Supabase auth rate limits count per IP, and our server makes the calls | Raise the limits in Supabase (docs/SETUP.md); Turnstile stops bots     |
-| A signed-up phone number can be detected on the sign-up form           | Accepted: needed to say the number is taken; Turnstile limits scraping |
-| Images in R2 are not in the weekly backup                              | Accepted at launch; R2 is replicated by Cloudflare                     |
+| Gap                                                                                                                                                      | Plan                                                                                     |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Supabase auth rate limits count per IP, and our server makes the calls                                                                                   | Raise the limits in Supabase (docs/SETUP.md); Turnstile stops bots                       |
+| A signed-up phone number can be detected on the sign-up form                                                                                             | Accepted: needed to say the number is taken; Turnstile limits scraping                   |
+| A provider could upload to their own storage folder directly (skipping the site's byte check); bucket limits still apply (3 MB, image types, own folder) | Low risk: fills space only. Later: a weekly clean-up of files no row points to           |
+| Image files are not in the weekly database backup                                                                                                        | Accepted at launch; Supabase keeps the files. Copy the bucket if a full backup is needed |
 
 ## Checks
 

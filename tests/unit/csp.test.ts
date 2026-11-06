@@ -45,5 +45,8 @@ describe("buildCsp", () => {
     const dev = directives(buildCsp("x", { dev: true }));
     expect(dev["script-src"]).toContain("'unsafe-eval'");
     expect(dev["upgrade-insecure-requests"]).toBeUndefined();
+    expect(
+      directives(buildCsp("x", { https: false }))["upgrade-insecure-requests"],
+    ).toBeUndefined();
   });
 });
