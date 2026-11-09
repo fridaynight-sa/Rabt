@@ -1,8 +1,14 @@
 import { isValidMediaKey } from "@/lib/images";
+import { imageStorage } from "@/lib/storage/config";
 import { getMediaBucket } from "@/lib/storage/r2";
 
-/** Serves stored images. Keys are random and never change, so browsers may cache forever. */
+/**
+ * Serves images when they are stored in Cloudflare R2 (NEXT_PUBLIC_IMAGE_STORAGE=r2).
+ * With Supabase Storage, images load straight from Supabase and this route is unused.
+ * Keys are random and never change, so browsers may cache forever.
+ */
 export async function GET(_request: Request, { params }: { params: Promise<{ key: string[] }> }) {
+  if (imageStorage() !== "r2") return new Response("Not found", { status: 404 });
   const key = (await params).key.join("/");
   if (!isValidMediaKey(key)) return new Response("Not found", { status: 404 });
 

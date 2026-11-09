@@ -8,13 +8,9 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS",
   },
-  "r2_buckets": [
-    {
-      // User images: provider portfolios and listing photos.
-      "binding": "MEDIA",
-      "bucket_name": "rabt-media",
-    },
-  ],
+  // Images are in Supabase Storage. To move them to Cloudflare R2 later: create the bucket
+  // "rabt-media", add this binding back, and set NEXT_PUBLIC_IMAGE_STORAGE=r2 (docs/ARCHITECTURE.md).
+  // "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "rabt-media" }],
   "observability": {
     "enabled": true,
   },

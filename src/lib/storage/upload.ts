@@ -1,17 +1,19 @@
 import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { MAX_UPLOAD_BYTES, detectImageType, extensionFor } from "@/lib/images";
-import { getMediaBucket } from "./r2";
+import { imageStore } from "./store";
 
 export type StoreResult = { ok: true; key: string } | { ok: false; message: string };
 
 /**
- * Checks an uploaded image (size, real type) and stores it in R2 under
+ * Checks an uploaded image (size, real type) and stores it under
  * `<folder>/<random id>.<ext>`. The caller saves the key in the database and
- * calls removeImage if that fails.
+ * calls removeImages if that fails.
  */
 export async function storeImage(
   file: FormDataEntryValue | null,
   folder: string,
+  client: SupabaseClient,
 ): Promise<StoreResult> {
   if (!(file instanceof File) || file.size === 0) {
     return { ok: false, message: "اختر صورة." };
@@ -25,11 +27,21 @@ export async function storeImage(
     return { ok: false, message: "نوع الملف غير مدعوم. الصيغ المقبولة: JPG وPNG وWEBP." };
   }
   const key = `${folder}/${crypto.randomUUID()}.${extensionFor(type)}`;
-  await (await getMediaBucket()).put(key, bytes, { httpMetadata: { contentType: type } });
+  try {
+    await imageStore(client).put(key, bytes, type);
+  } catch (error) {
+    console.error("image upload failed", error instanceof Error ? error.message : error);
+    return { ok: false, message: "ما قدرنا نرفع الصورة. حاول مرة ثانية." };
+  }
   return { ok: true, key };
 }
 
-export async function removeImages(keys: string[]): Promise<void> {
+/** Deletes stored images. A failure is logged, not thrown: the rows are already gone. */
+export async function removeImages(keys: string[], client: SupabaseClient): Promise<void> {
   if (keys.length === 0) return;
-  await (await getMediaBucket()).delete(keys);
+  try {
+    await imageStore(client).remove(keys);
+  } catch (error) {
+    console.error("image delete failed", error instanceof Error ? error.message : error);
+  }
 }
