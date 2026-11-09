@@ -140,7 +140,7 @@ test("admin sets up the authenticator app and hides the ad", async ({ browser })
   await page.goto(`/admin/listings?q=${encodeURIComponent(listingTitle)}`);
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "إخفاء" }).click();
-  await expect(page.getByText("مخفي", { exact: true })).toBeVisible();
+  await expect(page.locator("ul").getByText("مخفي", { exact: true })).toBeVisible();
   await page.context().close();
 
   // A visitor can no longer open it.
