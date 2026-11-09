@@ -110,7 +110,9 @@ test("merchant signs up, rates the provider and reports the ad", async ({ browse
   await page.getByRole("button", { name: "إرسال التقييم" }).click();
   await expect(page.getByText("شكراً، انحفظ تقييمك.")).toBeVisible();
   await page.reload();
-  await expect(page.getByText("تعامل راقي واختبار ناجح")).toBeVisible();
+  await expect(
+    page.getByRole("paragraph").filter({ hasText: "تعامل راقي واختبار ناجح" }),
+  ).toBeVisible();
 
   await page.goto(listingUrl);
   await page.getByRole("button", { name: /إبلاغ/ }).first().click();
