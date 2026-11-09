@@ -104,19 +104,21 @@ The browser never needs them, so injected scripts cannot read them.
 
 - Weekly encrypted database dump (`.github/workflows/backup.yml`), kept 90 days.
 - `/api/health` for the uptime monitor; it reveals nothing but up or down.
+- Weekly clean-up of image files no row points to (`.github/workflows/cleanup-images.yml`).
 - Dependabot opens weekly pull requests for outdated or vulnerable packages.
 
 ## Known gaps
 
-| Gap                                                                                                                                                      | Plan                                                                                     |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Supabase auth rate limits count per IP, and our server makes the calls                                                                                   | Raise the limits in Supabase (docs/SETUP.md); Turnstile stops bots                       |
-| A signed-up phone number can be detected on the sign-up form                                                                                             | Accepted: needed to say the number is taken; Turnstile limits scraping                   |
-| A provider could upload to their own storage folder directly (skipping the site's byte check); bucket limits still apply (3 MB, image types, own folder) | Low risk: fills space only. Later: a weekly clean-up of files no row points to           |
-| Image files are not in the weekly database backup                                                                                                        | Accepted at launch; Supabase keeps the files. Copy the bucket if a full backup is needed |
+| Gap                                                                                                                                                      | Plan                                                                                           |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Supabase auth rate limits count per IP, and our server makes the calls                                                                                   | Raise the limits in Supabase (docs/SETUP.md); Turnstile stops bots                             |
+| A signed-up phone number can be detected on the sign-up form                                                                                             | Accepted: needed to say the number is taken; Turnstile limits scraping                         |
+| A provider could upload to their own storage folder directly (skipping the site's byte check); bucket limits still apply (3 MB, image types, own folder) | Low risk: fills space only. A weekly job deletes files no row points to (`cleanup-images.yml`) |
+| Image files are not in the weekly database backup                                                                                                        | Accepted at launch; Supabase keeps the files. Copy the bucket if a full backup is needed       |
 
 ## Checks
 
 - On every change: `npm run check`, `npm run test:db`, `npm run build`, and a
-  security review of the diff (see `CLAUDE.md`).
+  security review of the diff (see `CLAUDE.md`). CI also runs the end-to-end tests
+  (`e2e/`) against a local Supabase.
 - Weekly: scheduled review of dependencies (`npm audit`), errors and uptime.

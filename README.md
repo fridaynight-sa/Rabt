@@ -6,14 +6,14 @@ A B2B directory connecting restaurants, cafes and online stores with suppliers a
 
 ## Stack
 
-| Part               | Tool                                                                       |
-| ------------------ | -------------------------------------------------------------------------- |
-| Web app            | Next.js 16 (App Router, Server Actions), TypeScript, Tailwind CSS 4        |
-| Hosting            | Cloudflare Workers via OpenNext                                            |
-| Database and login | Supabase (Postgres with row level security, Supabase Auth)                 |
-| Images             | Supabase Storage (switchable to Cloudflare R2, see docs/ARCHITECTURE.md)   |
-| Validation         | Zod, shared by forms and server                                            |
-| Tests              | Vitest (unit), plain SQL tests on a throwaway Postgres (database security) |
+| Part               | Tool                                                                                                |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| Web app            | Next.js 16 (App Router, Server Actions), TypeScript, Tailwind CSS 4                                 |
+| Hosting            | Cloudflare Workers via OpenNext                                                                     |
+| Database and login | Supabase (Postgres with row level security, Supabase Auth)                                          |
+| Images             | Supabase Storage (switchable to Cloudflare R2, see docs/ARCHITECTURE.md)                            |
+| Validation         | Zod, shared by forms and server                                                                     |
+| Tests              | Vitest (unit), plain SQL tests on a throwaway Postgres (database security), Playwright (end to end) |
 
 ## Run it locally
 
@@ -29,6 +29,7 @@ npm run dev                  # http://localhost:3000
 npm run check     # lint + types + formatting + unit tests
 npm run test:db   # migrations + database security tests (needs PostgreSQL 15+ binaries)
 npm run build
+npm run test:e2e  # real browser against a local Supabase; see e2e/README.md
 ```
 
 CI runs all of these on every pull request (`.github/workflows/ci.yml`).
@@ -45,6 +46,9 @@ src/proxy.ts          Refreshes the login session, guards private pages
 supabase/migrations/  Every database change, in order
 supabase/tests/       Database security tests
 tests/unit/           Unit tests
+e2e/                  End-to-end tests (Playwright)
+supabase/seed.sql     Sample data for local development and tests only
+scripts/              Database test runner, weekly image clean-up
 ```
 
 ## Docs

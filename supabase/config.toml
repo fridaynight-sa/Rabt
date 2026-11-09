@@ -37,3 +37,28 @@ enable_signup = false
 [auth.email.template.email_change]
 subject = "تأكيد تغيير الإيميل في ربط"
 content_path = "./supabase/templates/email_change.html"
+
+# Sample accounts and ads for local development and end-to-end tests only.
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+# Generous limits so the end-to-end tests can sign up several accounts in a row.
+[auth.rate_limit]
+email_sent = 100
+sign_in_sign_ups = 300
+token_verifications = 300
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[storage]
+enabled = true
+file_size_limit = "5MiB"
+
+[analytics]
+enabled = false
+
+[edge_runtime]
+enabled = false
