@@ -102,8 +102,10 @@ test("merchant signs up, rates the provider and reports the ad", async ({ browse
 
   await page.goto(providerUrl);
   await expect(page.getByText("نجهز المقاهي من الصفر.")).toBeVisible();
-  // The star radios are visually hidden behind the star icons.
-  await page.getByRole("radio", { name: /^5 من 5/ }).check({ force: true });
+  // Tap the fifth star, as a person would (the radio itself is visually hidden).
+  const fiveStars = page.getByRole("radio", { name: /^5 من 5/ });
+  await page.locator("label", { has: fiveStars }).click();
+  await expect(fiveStars).toBeChecked();
   await page.getByLabel("تعليقك").fill("تعامل راقي واختبار ناجح");
   await page.getByRole("button", { name: "إرسال التقييم" }).click();
   await expect(page.getByText("شكراً، انحفظ تقييمك.")).toBeVisible();
