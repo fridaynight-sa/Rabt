@@ -38,10 +38,12 @@ Postgres on Supabase. Schema lives in `supabase/migrations/`.
 - Image files: Supabase Storage bucket `rabt-media`. Policies on `storage.objects` use
   `can_write_media(name)`: only a provider, only in their own portfolio folder or their own
   listings' folders, only site-made file names. No one can overwrite a file.
+- `orphan_media_files(min_age, limit)` lists image files older than a day that no
+  listing or portfolio row points to. Server key only; used by the weekly clean-up
+  (`scripts/cleanup-images.mjs`).
 - `set_provider_tags(sector_ids, category_ids)` replaces a provider's sectors and categories in one step, as the caller (RLS applies).
 - Phone and WhatsApp numbers must be E.164.
 - Suspended accounts disappear from public pages and cannot write.
-- Admin changes (suspend, hide, verify) will go through audited functions (phase 5).
 
 ## Changing the schema
 

@@ -1,0 +1,33 @@
+name: Weekly image clean-up
+
+# Every Friday 04:00 Riyadh time (01:00 UTC), after the backup; also on demand.
+on:
+  schedule:
+    - cron: "0 1 * * 5"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only list what would be deleted"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      # Settings > Secrets and variables > Actions. See docs/SETUP.md.
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --omit=dev
+      - name: Delete unused image files
+        run: node scripts/cleanup-images.mjs ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}

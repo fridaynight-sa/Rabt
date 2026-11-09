@@ -180,6 +180,10 @@ export type Database = {
       is_account_active: { Args: { account_id: string }; Returns: boolean };
       get_login_email_for_phone: { Args: { p_phone: string }; Returns: string | null };
       record_page_view: { Args: { p_path: string }; Returns: undefined };
+      orphan_media_files: {
+        Args: { p_min_age?: string; p_limit?: number };
+        Returns: { name: string }[];
+      };
       normalize_search_text: { Args: { t: string }; Returns: string };
       search_pattern: { Args: { p_query: string }; Returns: string | null };
       search_listings: {

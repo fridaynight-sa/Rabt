@@ -23,3 +23,7 @@ npm-debug.log*
 /coverage
 /supabase/.temp
 /supabase/.branches
+
+# end-to-end test output
+/playwright-report
+/test-results
